@@ -13,13 +13,35 @@
  *  作者:.
  *  说明:.
  ******************************************************************/
-#ifndef PTREE_H
-#define PTREE_H
+#ifndef PROVER_TREE_H
+#define PROVER_TREE_H
 
+
+#include <vector>
 
 class ProverTree
 {
+public:
+	typedef int ciphertext_t; // type definition
 
+public:
+	ProverTree() = default;
+	~ProverTree();
+	bool updatePTree(const std::vector<ciphertext_t> &weights);
+	bool appendValue(const ciphertext_t &val);
+	bool query(int index, std::vector<ciphertext_t> &auth) const;
+
+// prevent copying
+private:
+	ProverTree(const ProverTree&);
+	ProverTree& operator=(const ProverTree&);
+
+private:
+	int depth = 0;
+	int size = 0;
+	int capacity = 0;
+	std::vector<std::vector<ciphertext_t>> ptree_w;
+	std::vector<std::vector<ciphertext_t>> ptree_v;
 };
 
 #endif

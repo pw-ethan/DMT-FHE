@@ -1,20 +1,17 @@
-CXX := g++
-COMPILEFLAGS := -g -Wall #-I/
+CC := g++
+COMPILEFLAGS := -g -Wall -DDEBUG #-I/
 LIBS := #-l
 LINKFLAGS := -L/.
 
-server : main.o libsocket.o
-	$(CXX) -o $@ $^ $(LINKFLAGS) $(LIBS)
-
-client : main.o libsocket.o
+out : server.o libsocket.o VTree.o
 	$(CXX) -o $@ $^ $(LINKFLAGS) $(LIBS)
 
 %.o : %.cpp
-	$(CXX) -c -o $@ $< $(COMPILEFLAGS)
+	$(CXX) -c -o $@ $< -std=c++11 $(COMPILEFLAGS)
 
 clean :
 	rm -rf *.o server client
 
-.PHONY : all clean server client
+.PHONY : out clean
 
 
