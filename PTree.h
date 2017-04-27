@@ -18,11 +18,15 @@
 
 
 #include <vector>
+#include <deque>
 
 class ProverTree
 {
 public:
 	typedef int ciphertext_t; // type definition
+
+private:
+	static const ciphertext_t ZERO = 0;
 
 public:
 	ProverTree() = default;
@@ -31,18 +35,37 @@ public:
 	bool appendValue(const ciphertext_t &val);
 	bool query(int index, std::vector<ciphertext_t> &auth) const;
 
-// prevent copying
-private:
-	ProverTree(const ProverTree&);
-	ProverTree& operator=(const ProverTree&);
 
 private:
 	int depth = 0;
 	int size = 0;
 	int capacity = 0;
-	std::vector<std::vector<ciphertext_t>> ptree_w;
-	std::vector<std::vector<ciphertext_t>> ptree_v;
+	std::deque<std::vector<ciphertext_t>> ptree_w;
+	std::deque<std::vector<ciphertext_t>> ptree_v;
+
+// prevent copying
+private:
+	ProverTree(const ProverTree&);
+	ProverTree& operator=(const ProverTree&);
+
+
+public:
+	bool IsFull() const; // judge whether the tree is full
+	int getDepth() const;
+	void print() const;
+
 };
+
+inline bool ProverTree::IsFull() const
+{
+	return capacity == size;
+}
+
+inline int ProverTree::getDepth() const
+{
+	return depth;
+}
+
 
 #endif
 

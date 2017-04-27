@@ -17,25 +17,44 @@
 #include <iostream>
 
 #include "VTree.h"
+#include "PTree.h"
+#include "commons.h"
 
 using namespace std;
 
+void get_weights(int n, vector<VerifierTree::plaintext_t> &weights)
+{
+	weights.clear();
+	for(int i = 0; i < n; ++i){
+		weights.push_back(i+1);
+	}
+}
+
+void encrypt_weights(vector<VerifierTree::plaintext_t> &wghts, vector<ProverTree::ciphertext_t> &e_wghts)
+{
+	e_wghts.clear();
+	for(auto wght: wghts){
+		e_wghts.push_back(wght);
+	}
+}
+
+
 int main()
 {
-	vector<VerifierTree::plaintext_t> v0 = {0};
-	vector<VerifierTree::plaintext_t> v1 = {0, 1};
-	vector<VerifierTree::plaintext_t> v2 = {0, 1, 2, 3};
-	vector<VerifierTree::plaintext_t> v3 = {0, 1, 2, 3, 4, 5, 6, 7};
-
 	VerifierTree vtree;
-	vtree.updateVTree(v0);
-	vtree.print();
-	vtree.updateVTree(v1);
-	vtree.print();
-	vtree.updateVTree(v2);
-	vtree.print();
-	vtree.updateVTree(v3);
-	vtree.print();
+
+	vector<VerifierTree::plaintext_t> wghts;
+	for (int i = 0; i < 8; ++i)
+	{
+		if(vtree.IsFull()){
+			get_weights(power_two(vtree.getDepth()), wghts);
+			vtree.updateVTree(wghts);
+		}
+		vtree.appendValue(1);
+	}
+
+	ProverTree ptree;
+	
 	return 0;
 }
 

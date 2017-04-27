@@ -38,6 +38,11 @@ inline void logMsg(const std::string msg, int type)
 #endif
 }
 
+inline int power_two(int n)
+{
+	return 1 << n;
+}
+
 
 #endif
 

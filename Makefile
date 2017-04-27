@@ -3,15 +3,15 @@ COMPILEFLAGS := -g -Wall -DDEBUG #-I/
 LIBS := #-l
 LINKFLAGS := -L/.
 
-out : server.o libsocket.o VTree.o
+server : server.o libsocket.o VTree.o PTree.o
 	$(CXX) -o $@ $^ $(LINKFLAGS) $(LIBS)
 
 %.o : %.cpp
 	$(CXX) -c -o $@ $< -std=c++11 $(COMPILEFLAGS)
 
 clean :
-	rm -rf *.o server client
+	rm -rf *.o server
 
-.PHONY : out clean
+.PHONY : server clean
 
 
