@@ -26,9 +26,9 @@ VerifierTree::~VerifierTree()
 
 bool VerifierTree::updateVTree(const std::vector<plaintext_t> &weights)
 {
-	logMsg("update VTree", LOG::Info);
+	logMsg("update vtree", LOG::Info);
 	if(weights.empty() || weights.size() - power_two(depth) != 0){
-		logMsg("VTree::updateVTree() -- parameter error", LOG::Error);
+		logMsg("VerifierTrees::updateVTree() -- parameter error", LOG::Error);
 		return false;
 	}
 	
@@ -37,7 +37,7 @@ bool VerifierTree::updateVTree(const std::vector<plaintext_t> &weights)
 	newlayer.push_back(weights[index++]);
 	vtree.push_front(newlayer);
 
-	for(std::vector<std::vector<plaintext_t>>::size_type i = 1; i < vtree.size(); ++i){
+	for(std::deque<std::vector<plaintext_t>>::size_type i = 1; i < vtree.size(); ++i){
 		std::vector<plaintext_t>::size_type sz = vtree[i].size();
 		for(std::vector<plaintext_t>::size_type j = 0; j < sz; ++j){
 			vtree[i].push_back(weights[index++]);
@@ -58,7 +58,7 @@ bool VerifierTree::updateVTree(const std::vector<plaintext_t> &weights)
 	}
 	depth += 1;
 
-	print();
+	//print();
 	return true;
 }
 
@@ -74,7 +74,7 @@ bool VerifierTree::appendValue(const plaintext_t &val)
 	evidence.back() += valueAdd2Evidence;
 	size += 1;
 
-	print();
+	//print();
 	return true;
 }
 

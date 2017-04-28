@@ -30,7 +30,7 @@ void get_weights(int n, vector<VerifierTree::plaintext_t> &weights)
 	}
 }
 
-void encrypt_weights(vector<VerifierTree::plaintext_t> &wghts, vector<ProverTree::ciphertext_t> &e_wghts)
+void encrypt_weights(const vector<VerifierTree::plaintext_t> &wghts, vector<ProverTree::ciphertext_t> &e_wghts)
 {
 	e_wghts.clear();
 	for(auto wght: wghts){
@@ -38,22 +38,39 @@ void encrypt_weights(vector<VerifierTree::plaintext_t> &wghts, vector<ProverTree
 	}
 }
 
+void print_vector(const vector<ProverTree::ciphertext_t> &v)
+{
+	for(auto i : v){
+		cout << i << " ";
+	}
+	cout << endl;
+}
+
 
 int main()
 {
 	VerifierTree vtree;
+	ProverTree ptree;
 
 	vector<VerifierTree::plaintext_t> wghts;
+	vector<ProverTree::ciphertext_t> e_wghts;
 	for (int i = 0; i < 8; ++i)
 	{
 		if(vtree.IsFull()){
 			get_weights(power_two(vtree.getDepth()), wghts);
 			vtree.updateVTree(wghts);
+
+			encrypt_weights(wghts, e_wghts);
+			ptree.updatePTree(e_wghts);
 		}
 		vtree.appendValue(1);
+		ptree.appendValue(1);
 	}
 
-	ProverTree ptree;
+	vector<ProverTree::ciphertext_t> auth;
+	ptree.query(2, auth);
+
+	print_vector(auth);
 	
 	return 0;
 }
