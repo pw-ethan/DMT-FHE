@@ -58,7 +58,7 @@ bool VerifierTree::updateVTree(const std::vector<plaintext_t> &weights)
 	}
 	depth += 1;
 
-	//print();
+	print();
 	return true;
 }
 
@@ -74,14 +74,32 @@ bool VerifierTree::appendValue(const plaintext_t &val)
 	evidence.back() += valueAdd2Evidence;
 	size += 1;
 
-	//print();
+	print();
 	return true;
 }
 
 bool VerifierTree::verify(int index, const plaintext_t &data, const std::vector<plaintext_t> &auth) const
 {
 	logMsg("verify", LOG::Info);
-
+	if(index >= size){
+		logMsg("VerifierTree::verify() -- parameter error", LOG::Error);
+		return false;
+	}
+	int offset = index;
+	plaintext_t evi = data;
+	int i = 0;
+	for(auto it = vtree.rbegin(); it != vtree.rend() - 1; ++it){
+		evi *= (*it)[offset];
+		if(offset & 0x01){
+			evi += auth[i++] * (*it)[offset - 1];
+		}else{
+			evi += auth[i++] * (*it)[offset + 1];
+		}
+		offset /= 2;
+	}
+	if(evidence.back() == evi){
+		return true;
+	}
 	return false;
 }
 

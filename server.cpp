@@ -38,6 +38,14 @@ void encrypt_weights(const vector<VerifierTree::plaintext_t> &wghts, vector<Prov
 	}
 }
 
+void decrypt_auth(const vector<ProverTree::ciphertext_t> &e_auth, vector<VerifierTree::plaintext_t> &auth)
+{
+	auth.clear();
+	for(auto item : e_auth){
+		auth.push_back(item);
+	}
+}
+
 void print_vector(const vector<ProverTree::ciphertext_t> &v)
 {
 	for(auto i : v){
@@ -67,10 +75,15 @@ int main()
 		ptree.appendValue(1);
 	}
 
-	vector<ProverTree::ciphertext_t> auth;
-	ptree.query(2, auth);
+	VerifierTree::plaintext_t data;
+	vector<ProverTree::ciphertext_t> e_auth;
+	ptree.query(2, data, e_auth);
 
-	print_vector(auth);
+	vector<VerifierTree::plaintext_t> auth;
+	decrypt_auth(e_auth, auth);
+	if(vtree.verify(2, data, auth)){
+		cout << "verify succeed" << endl;
+	}
 	
 	return 0;
 }

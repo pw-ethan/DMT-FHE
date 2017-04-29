@@ -96,7 +96,7 @@ bool ProverTree::appendValue(const ciphertext_t &val)
 	return false;
 }
 
-bool ProverTree::query(int index, std::vector<ciphertext_t> &auth) const
+bool ProverTree::query(int index, plaintext_t &data, std::vector<ciphertext_t> &auth) const
 {
 	logMsg("query", LOG::Info);
 	if(index >= size){
@@ -105,6 +105,7 @@ bool ProverTree::query(int index, std::vector<ciphertext_t> &auth) const
 	}
 	auth.clear();
 	int offset = index;
+	data = ptree_v.back()[offset];
 	for(auto it = ptree_v.rbegin(); it != ptree_v.rend() - 1; ++it){
 		if(offset & 0x01){
 			auth.push_back((*it)[offset - 1]);

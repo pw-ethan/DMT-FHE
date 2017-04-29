@@ -24,6 +24,7 @@ class ProverTree
 {
 public:
 	typedef int ciphertext_t; // type definition
+	typedef int plaintext_t;
 
 private:
 	static const ciphertext_t ZERO = 0;
@@ -33,7 +34,7 @@ public:
 	~ProverTree();
 	bool updatePTree(const std::vector<ciphertext_t> &weights);
 	bool appendValue(const ciphertext_t &val);
-	bool query(int index, std::vector<ciphertext_t> &auth) const;
+	bool query(int index, plaintext_t &data, std::vector<ciphertext_t> &auth) const;
 
 
 private:
