@@ -15,18 +15,28 @@
  ******************************************************************/
 
 #include <iostream>
+#include <fstream>
+#include <sstream>
+#include <string>
+#include <json/json.h>
 
 #include "VTree.h"
 #include "PTree.h"
 #include "commons.h"
+#include "libsocket.h"
+#include "thread_pool.h"
+#include "task.h"
+#include "task_process.h"
 
 using namespace std;
+
+const int SERVER_PORT = 22222;
 
 void get_weights(int n, vector<VerifierTree::plaintext_t> &weights)
 {
 	weights.clear();
 	for(int i = 0; i < n; ++i){
-		weights.push_back(i+1);
+		weights.push_back(i + 1);
 	}
 }
 
@@ -54,36 +64,116 @@ void print_vector(const vector<ProverTree::ciphertext_t> &v)
 	cout << endl;
 }
 
+string filename = "/home/pw-ethan/workspace/io.dat";
+
+string recv()
+{
+	ifstream fin(filename);
+	string buffer;
+	ostringstream sout;
+	while(getline(fin, buffer)){
+		sout << buffer;
+	}
+	return sout.str();
+}
+
+void process(string request)
+{
+	cout << request << endl;
+	Json::Reader reader;
+	Json::Value root;
+	if(reader.parse(request, root)){
+		cout << root["username"].asString() << endl;
+	}
+}
+
 
 int main()
 {
-	VerifierTree vtree;
-	ProverTree ptree;
+	CThreadPool pool;
 
-	vector<VerifierTree::plaintext_t> wghts;
-	vector<ProverTree::ciphertext_t> e_wghts;
-	for (int i = 0; i < 8; ++i)
-	{
-		if(vtree.IsFull()){
-			get_weights(power_two(vtree.getDepth()), wghts);
-			vtree.updateVTree(wghts);
+	shared_ptr<Socket> pServer(new Socket);
+	if(pServer->init_server()) {
+		cerr << "init server error" << endl;
+		exit(1);
+	}
+	if (!pServer->listen()) {
+		cerr << "listen error" << endl;
+		exit(1);
+	}
 
-			encrypt_weights(wghts, e_wghts);
-			ptree.updatePTree(e_wghts);
+	while (1) {
+		unique_ptr<Socket> pc = pServer->accept();
+		if(!pc) {
+			cerr << "accept error" << endl;
+			exit(1);
 		}
-		vtree.appendValue(1);
-		ptree.appendValue(1);
+		CTaskProcess task(move(pc));
+		pool.submit(move(task));
 	}
+	
+	// CThreadPool pool;
 
-	VerifierTree::plaintext_t data;
-	vector<ProverTree::ciphertext_t> e_auth;
-	ptree.query(2, data, e_auth);
+	// vector<future<int>> futures(20);
+	// int result = 0;
+	// for(int i = 1; i <= 20; ++i){
+	// 	CTask tmp(i);
+	// 	futures[i-1] = pool.submit(tmp);
+	// }
 
-	vector<VerifierTree::plaintext_t> auth;
-	decrypt_auth(e_auth, auth);
-	if(vtree.verify(2, data, auth)){
-		cout << "verify succeed" << endl;
-	}
+	// for(unsigned i = 0; i < 20; ++i) {
+	// 	result += futures[i].get();
+	// }
+
+	// cout << result << endl;
+
+	// string request = recv();
+	// process(request);
+
+	// Socket server, client;
+ //    server.create();
+ //    server.bind(SERVER_PORT);
+ //    server.listen();
+
+ //    server.accept(client);
+
+ //    string buf;
+ //    //while(1){
+ //        client.recvMsg(buf);
+ //        cout << "receive message : " << buf << endl;
+ //        // if(buf == "exit"){
+ //        //     break;
+ //        // }
+ //        client.sendMsg(buf);
+    //}
+
+	// VerifierTree vtree;
+	// ProverTree ptree;
+
+	// vector<VerifierTree::plaintext_t> wghts;
+	// vector<ProverTree::ciphertext_t> e_wghts;
+	// for (int i = 0; i < 8; ++i)
+	// {
+	// 	if(vtree.IsFull()){
+	// 		get_weights(power_two(vtree.getDepth()), wghts);
+	// 		vtree.updateVTree(wghts);
+
+	// 		encrypt_weights(wghts, e_wghts);
+	// 		ptree.updatePTree(e_wghts);
+	// 	}
+	// 	vtree.appendValue(1);
+	// 	ptree.appendValue(1);
+	// }
+
+	// VerifierTree::plaintext_t data;
+	// vector<ProverTree::ciphertext_t> e_auth;
+	// ptree.query(2, data, e_auth);
+
+	// vector<VerifierTree::plaintext_t> auth;
+	// decrypt_auth(e_auth, auth);
+	// if(vtree.verify(2, data, auth)){
+	// 	cout << "verify succeed" << endl;
+	// }
 	
 	return 0;
 }

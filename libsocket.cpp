@@ -29,35 +29,27 @@ Socket::~Socket()
     }
 }
 
-bool Socket::create(int domain, int type, int protocol)
-{
-    bool ret = false;
+int Socket::init_server(
+    int port, 
+    const std::string host, 
+    int domain, 
+    int type, 
+    int protocol) {
 
-    m_Sockfd = socket(domain, type, protocol);
-    if(IsOK(m_Sockfd)){
-        ret = true;
+    if ((m_Sockfd = socket(domain, type, protocol)) == NG) {
+        return -1; // create socket error
     }
 
-    return ret;
-}
+    bzero(&m_addr,sizeof(m_addr));
+    m_addr.sin_family = domain;
+    m_addr.sin_addr.s_addr = inet_addr(host.c_str());
+    m_addr.sin_port = htons(port);
 
-bool Socket::bind(int port, const std::string host, int domain)
-{
-    bool ret = false;
-    int flag = NG;
-
-    if(IsOK(m_Sockfd)){
-        m_addr.sin_family = domain;
-        m_addr.sin_addr.s_addr = inet_addr(host.c_str());
-        m_addr.sin_port = htons(port);
-
-        flag = ::bind(m_Sockfd, (struct sockaddr*)&m_addr, sizeof(m_addr));
-        if(IsOK(flag)){
-            ret = true;
-        }
+    if (bind(m_Sockfd, (struct sockaddr*)&m_addr, sizeof(m_addr)) == NG) {
+        return -2; // bind error
     }
 
-    return ret;
+    return 0;
 }
 
 bool Socket::listen(int connum) const
@@ -86,18 +78,46 @@ bool Socket::accept(Socket &tos) const
         if(IsOK(tos.m_Sockfd)){
             ret = true;
         }
+        else {
+            ret = false;
+        }
     }
 
     return ret;
 }
 
-bool Socket::connect(int port, const std::string host, int domain) const
-{
+std::unique_ptr<Socket> Socket::accept() const {
+    std::unique_ptr<Socket> ret(new Socket);
+    int len = sizeof(ret->m_addr);
+    if(IsOK(m_Sockfd)) {
+        ret->m_Sockfd = ::accept(m_Sockfd, (struct sockaddr*)&(ret->m_addr), (socklen_t*)&len);
+        if(IsOK(ret->m_Sockfd)) {
+            return ret;
+        }
+    }
+    return nullptr;
+}
+
+
+int Socket::init_client(
+    int domain,
+    int type,
+    int protocol) {
+
+    if ((m_Sockfd = socket(domain, type, protocol)) != NG) {
+        return -4; // create socket error
+    }
+
+    return 0;
+}
+
+bool Socket::connect(int port, const std::string host, int domain) const {
     bool ret = false;
     int flag = NG;
 
     if(IsOK(m_Sockfd)){
         struct sockaddr_in server_addr;
+        bzero(&server_addr,sizeof(server_addr));
         server_addr.sin_family = domain;
         server_addr.sin_addr.s_addr = inet_addr(host.c_str());
         server_addr.sin_port = htons(port);
@@ -110,17 +130,17 @@ bool Socket::connect(int port, const std::string host, int domain) const
     return ret;
 }
 
-bool Socket::recvMsg(std::string &recv_buf) const
+bool Socket::recv_msg(std::string &recv_buf) const
 {
     bool ret = false;
-    int flag = NG;
+    int num = 0;
     char buf[MAX];
     recv_buf.clear();
     memset(buf, 0, MAX);
 
     if(IsOK(m_Sockfd)){
-        flag = read(m_Sockfd, &buf, MAX - 1);
-        if (IsOK(flag)) {
+        num = recv(m_Sockfd, buf, MAX - 1, 0);
+        if (num != 0) {
             ret = true;
             recv_buf = buf;
         }
@@ -129,13 +149,13 @@ bool Socket::recvMsg(std::string &recv_buf) const
     return ret;
 }
 
-bool Socket::sendMsg(const std::string &send_buf) const
+bool Socket::send_msg(const std::string &send_buf) const
 {
     bool ret = false;
     int flag = NG;
 
     if(IsOK(m_Sockfd)){
-        flag = write(m_Sockfd, send_buf.c_str(), send_buf.length());
+        flag = send(m_Sockfd, send_buf.c_str(), send_buf.length(), 0);
         if(IsOK(flag)){
             ret = true;
         }

@@ -18,6 +18,7 @@
 
 #include <iostream>
 #include <string>
+#include <memory>
 
 #include <string.h>
 #include <unistd.h>
@@ -32,8 +33,9 @@ const int NG = -1;
 
 const int MAX = 4096;
 
-const std::string LOCAL("127.0.0.1");
-const int PORT = 11111;
+const std::string LOCAL_ADDRESS("127.0.0.1");
+const int DEFAULT_PORT = 22233;
+const int DEFAULT_BACK = 1;
 
 typedef int sockfd_t;
 
@@ -42,13 +44,28 @@ class Socket
     public:
         Socket(sockfd_t fd = NG); // also a default constructors
         ~Socket(); // non-virtual destructor
-        bool create(int domain = PF_INET, int type = SOCK_STREAM, int protocol = IPPROTO_IP);
-        bool bind(int port, const std::string host = LOCAL, int domain = AF_INET);
-        bool listen(int connum = 1) const;
+        int init_server(
+            int port = DEFAULT_PORT, 
+            const std::string host = LOCAL_ADDRESS,
+            int domain = PF_INET,
+            int type = SOCK_STREAM,
+            int protocol = IPPROTO_IP);
+        bool listen(int connum = DEFAULT_BACK) const;
         bool accept(Socket &tos) const;
-        bool connect(int port, const std::string host = LOCAL, int domain = AF_INET) const;
-        bool recvMsg(std::string &recv_buf) const;
-        bool sendMsg(const std::string &send_buf) const;
+        std::unique_ptr<Socket> accept() const;
+
+        int init_client(
+            int domain = PF_INET,
+            int type = SOCK_STREAM,
+            int protocol = IPPROTO_IP);
+        bool connect(
+            int port = DEFAULT_PORT,
+            const std::string host = LOCAL_ADDRESS,
+            int domain = AF_INET) const;
+
+        bool recv_msg(std::string &recv_buf) const;
+        bool send_msg(const std::string &send_buf) const;
+
     private:
         sockfd_t m_Sockfd;
         struct sockaddr_in m_addr;
@@ -58,4 +75,3 @@ class Socket
 
 
 #endif
-

@@ -48,19 +48,19 @@ int main()
 
 #ifdef CLIENT
     Socket client;
-    client.create();
-    client.connect(SERVER_PORT);
+    client.init_client();
+    client.connect();
 
     string buf;
     while(getline(cin, buf)){
-        client.sendMsg(buf);
+        client.send_msg(buf);
         cout << "send message : " << buf << endl;
 
         if(buf == "exit"){
             break;
         }
 
-        client.recvMsg(buf);
+        client.recv_msg(buf);
         cout << "receive message : " << buf << endl;
     }
 
