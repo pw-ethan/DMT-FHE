@@ -93,8 +93,10 @@ int main()
 	CThreadPool pool;
 
 	shared_ptr<Socket> pServer(new Socket);
-	if(pServer->init_server()) {
+	int error_code;
+	if((error_code = pServer->init_server())) {
 		cerr << "init server error" << endl;
+		cerr << error_code << endl;
 		exit(1);
 	}
 	if (!pServer->listen()) {
@@ -111,41 +113,6 @@ int main()
 		CTaskProcess task(move(pc));
 		pool.submit(move(task));
 	}
-	
-	// CThreadPool pool;
-
-	// vector<future<int>> futures(20);
-	// int result = 0;
-	// for(int i = 1; i <= 20; ++i){
-	// 	CTask tmp(i);
-	// 	futures[i-1] = pool.submit(tmp);
-	// }
-
-	// for(unsigned i = 0; i < 20; ++i) {
-	// 	result += futures[i].get();
-	// }
-
-	// cout << result << endl;
-
-	// string request = recv();
-	// process(request);
-
-	// Socket server, client;
- //    server.create();
- //    server.bind(SERVER_PORT);
- //    server.listen();
-
- //    server.accept(client);
-
- //    string buf;
- //    //while(1){
- //        client.recvMsg(buf);
- //        cout << "receive message : " << buf << endl;
- //        // if(buf == "exit"){
- //        //     break;
- //        // }
- //        client.sendMsg(buf);
-    //}
 
 	// VerifierTree vtree;
 	// ProverTree ptree;

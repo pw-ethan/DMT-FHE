@@ -104,7 +104,7 @@ int Socket::init_client(
     int type,
     int protocol) {
 
-    if ((m_Sockfd = socket(domain, type, protocol)) != NG) {
+    if ((m_Sockfd = socket(domain, type, protocol)) == NG) {
         return -4; // create socket error
     }
 

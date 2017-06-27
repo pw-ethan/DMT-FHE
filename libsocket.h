@@ -34,7 +34,7 @@ const int NG = -1;
 const int MAX = 4096;
 
 const std::string LOCAL_ADDRESS("127.0.0.1");
-const int DEFAULT_PORT = 22233;
+const int DEFAULT_PORT = 22224;
 const int DEFAULT_BACK = 1;
 
 typedef int sockfd_t;
