@@ -19,6 +19,7 @@
 #include <sstream>
 #include <string>
 #include <json/json.h>
+#include <random>
 
 #include "VTree.h"
 #include "PTree.h"
@@ -27,6 +28,8 @@
 #include "thread_pool.h"
 #include "task.h"
 #include "task_process.h"
+#include "rdope_crypto_utility.h"
+#include "hrdope.h"
 
 using namespace std;
 
@@ -90,29 +93,44 @@ void process(string request)
 
 int main()
 {
-	CThreadPool pool;
+	rdOPE rdope(10, 3);
+	rdope.init();
+	string key = "key";
+	int i = 0;
+	while(cin >> i && i < 11 && i > 0) {
+		cout << rdope.encrypt(i, key) << endl;
+	}
+	
 
-	shared_ptr<Socket> pServer(new Socket);
-	int error_code;
-	if((error_code = pServer->init_server())) {
-		cerr << "init server error" << endl;
-		cerr << error_code << endl;
-		exit(1);
-	}
-	if (!pServer->listen()) {
-		cerr << "listen error" << endl;
-		exit(1);
-	}
+	// string key = "helle";
+	// int xi = 13;
+	// HCode hc(key, xi);
+	// std::hash<HCode> h;
+	// cout << h(hc) << endl;
 
-	while (1) {
-		unique_ptr<Socket> pc = pServer->accept();
-		if(!pc) {
-			cerr << "accept error" << endl;
-			exit(1);
-		}
-		CTaskProcess task(move(pc));
-		pool.submit(move(task));
-	}
+	// CThreadPool pool;
+
+	// shared_ptr<Socket> pServer(new Socket);
+	// int error_code;
+	// if((error_code = pServer->init_server())) {
+	// 	cerr << "init server error" << endl;
+	// 	cerr << error_code << endl;
+	// 	exit(1);
+	// }
+	// if (!pServer->listen()) {
+	// 	cerr << "listen error" << endl;
+	// 	exit(1);
+	// }
+
+	// while (1) {
+	// 	unique_ptr<Socket> pc = pServer->accept();
+	// 	if(!pc) {
+	// 		cerr << "accept error" << endl;
+	// 		exit(1);
+	// 	}
+	// 	CTaskProcess task(move(pc));
+	// 	pool.submit(move(task));
+	// }
 
 	// VerifierTree vtree;
 	// ProverTree ptree;

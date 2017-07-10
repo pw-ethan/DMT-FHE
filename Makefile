@@ -3,7 +3,7 @@ COMPILEFLAGS := -g -Wall -DDEBUG
 LIBS := -ljson -pthread
 LINKFLAGS := -L /usr/local/lib
 
-server : server.o libsocket.o VTree.o PTree.o
+server : server.o libsocket.o VTree.o PTree.o rdope_crypto_utility.o
 	$(CXX) -o $@ $^ $(LINKFLAGS) $(LIBS)
 
 client : main.o libsocket.o
