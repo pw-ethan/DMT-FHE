@@ -93,20 +93,20 @@ void process(string request)
 
 int main()
 {
-	rdOPE rdope(10, 3);
-	rdope.init();
+	string sensor = "HeartRate";
 	string key = "key";
-	int i = 0;
-	while(cin >> i && i < 11 && i > 0) {
-		cout << rdope.encrypt(i, key) << endl;
+
+	rdOPE rdope(2);
+	rdope.initKeyTable();
+	rdope.initCipherTable(key);
+
+	for (int i = 50; i < 100; ++i) {
+		int cipher = rdope.encrypt(i, sensor, key);
+		cout << "encrypt(" << i << ") = " << cipher << endl;
+		int plain = rdope.decrypt(cipher, sensor, key);
+		cout << "decrypt(" << cipher << ") = " << plain << endl;
 	}
 	
-
-	// string key = "helle";
-	// int xi = 13;
-	// HCode hc(key, xi);
-	// std::hash<HCode> h;
-	// cout << h(hc) << endl;
 
 	// CThreadPool pool;
 

@@ -18,33 +18,51 @@
 
 #include <vector>
 #include <string>
+#include <unordered_map>
+#include <memory>
 
-const int RANGE_EXTEND = 2;
+const unsigned RANGE_EXTEND = 2;
+const std::string CONFIG_FILE_PATH = "/home/pw-ethan/workspace/config.dat";
 
 class rdOPE {
 public:
-	rdOPE(unsigned r, /*unsigned n = 1,*/ unsigned c = 2) :
-		/* m_nSensors(n), */
-		m_nReadingsRange(r), 
-		m_nKeyRange(RANGE_EXTEND * r * c /* * n */), 
-		m_nTableSize(c) { }
+	struct SensorReadingInfo {
+		int m_nMinReading;
+		int m_nMaxReading;
+		SensorReadingInfo(int min, int max) :
+			m_nMinReading(min),
+			m_nMaxReading(max){ }
+	};
+
+	rdOPE(unsigned c = 2) : 
+		m_nCellSize(c) { 
+			initSensorsReadings();
+	}
+
 	~rdOPE() = default;
 	rdOPE(const rdOPE&) = delete;
 	rdOPE& operator=(const rdOPE&) = delete;
 
-	void init();
+	void initKeyTable();
+	void initCipherTable(const std::string& hkey);
 
-	int encrypt(int plaintext, const std::string& key);
-
+	int encrypt(int plaintext,const std::string& sensor, const std::string& hkey);
+	int decrypt(int ciphertext, const std::string& sensor, const std::string& hkey);
 
 private:
-	// unsigned m_nSensors;
-	unsigned m_nReadingsRange;
-	unsigned m_nKeyRange;
-	unsigned m_nTableSize;
-	std::vector<std::vector<int>> m_vKeyTable;
+	void initSensorsReadings();
+
+private:
+	unsigned m_nReadingsRange; // r
+	unsigned m_nCellSize; // c
+	unsigned m_nNumbersOfSensors; // n
+	unsigned m_nKeyRange; // b
+
+	std::unordered_map<std::string, std::vector<std::vector<int>>> m_mKeyTables;
+
+	std::unordered_map<std::string, std::unordered_map<int, int>> m_mCipherTables;
+
+	std::unordered_map<std::string, std::shared_ptr<SensorReadingInfo>> m_mSensorsReadings;
 };
 
-
 #endif
-
